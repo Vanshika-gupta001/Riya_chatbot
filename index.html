@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Riya Voice Sales Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: a call console pinned on the left, call history on the right; tabs on phones. */
+:root{
+  --bg:#EDF0EC; --surface:#FFFFFF; --surface-2:#F5F8F5; --ink:#13201B; --muted:#5A6B64; --line:#D6DDD8;
+  --accent:#0F7B5F; --accent-ink:#FFFFFF; --danger:#C0392B; --danger-ink:#FFFFFF;
+  --bot-bg:#E2EEE7; --me-bg:#13201B; --me-ink:#F2F6F3;
+  --s-converted-fg:#0B6A50; --s-converted-bg:#D9F0E6;
+  --s-interested-fg:#1F5FA8; --s-interested-bg:#DEEAF8;
+  --s-followup-fg:#85560A; --s-followup-bg:#FAEBC9;
+  --s-notint-fg:#8A3030; --s-notint-bg:#F6DEDB;
+  --s-demo-fg:#5B3FA8; --s-demo-bg:#E8E1F6;
+  --s-noresp-fg:#46534E; --s-noresp-bg:#E3E8E5;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Hanken Grotesk','Segoe UI',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0E1613; --surface:#16211D; --surface-2:#1B2823; --ink:#E7EFEA; --muted:#9BAFA6; --line:#2A3A34;
+    --accent:#3CC59B; --accent-ink:#06251C; --danger:#FF7A6B; --danger-ink:#2B0905;
+    --bot-bg:#203229; --me-bg:#E7EFEA; --me-ink:#13201B;
+    --s-converted-fg:#6FE0B9; --s-converted-bg:#14392C;
+    --s-interested-fg:#8DBDF2; --s-interested-bg:#182E49;
+    --s-followup-fg:#F0C768; --s-followup-bg:#3A2E10;
+    --s-notint-fg:#F59E96; --s-notint-bg:#40201E;
+    --s-demo-fg:#BBA6F2; --s-demo-bg:#2C2246;
+    --s-noresp-fg:#B3C2BB; --s-noresp-bg:#26312D;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 40px max(16px,env(safe-area-inset-right))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{display:flex;align-items:center;gap:3px;height:34px;padding:0 10px;border-radius:10px;background:var(--ink)}
+.mark i{display:block;width:3px;border-radius:2px;background:var(--bg)}
+.mark i:nth-child(1){height:10px}.mark i:nth-child(2){height:20px}.mark i:nth-child(3){height:14px}.mark i:nth-child(4){height:22px}.mark i:nth-child(5){height:8px}
+.brand h1{margin:0;font:700 20px/1.1 var(--font-display);letter-spacing:-.01em}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:600}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{background:var(--danger);color:var(--danger-ink);border-color:transparent}
+.btn.danger:hover{filter:brightness(1.07)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.tabs{display:flex;gap:6px;margin-bottom:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.grid{display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0}
+#console{display:flex;flex-direction:column;min-height:560px;height:calc(100dvh - 150px)}
+.console-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:grid;gap:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-weight:600;font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.pill[data-s="listening"] .dot{background:var(--accent);animation:pulse 1.1s infinite}
+.pill[data-s="speaking"] .dot{background:#3B82C4;animation:pulse .7s infinite}
+.pill[data-s="thinking"] .dot,.pill[data-s="connecting"] .dot{background:#D49A1A;animation:pulse .9s infinite}
+@keyframes pulse{50%{transform:scale(1.7);opacity:.5}}
+.timer{font:500 26px/1 var(--font-mono);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.rec{display:inline-flex;align-items:center;gap:6px;color:var(--danger);font-weight:700;font-size:12px;letter-spacing:.08em}
+.rec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--danger);animation:pulse 1.2s infinite}
+.controls{display:flex;gap:10px}
+.controls .btn{flex:1;padding:12px 14px;font-size:15px}
+.context{color:var(--muted);font-size:13px}
+.banner{margin:12px 20px 0;padding:10px 12px;border-radius:10px;background:var(--s-followup-bg);color:var(--s-followup-fg);font-size:13px}
+#chat{flex:1;overflow:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-height:0}
+.empty{margin:auto;max-width:34ch;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font:700 18px/1.2 var(--font-display);margin-bottom:6px}
+.msg{max-width:86%;display:flex;flex-direction:column;gap:3px}
+.msg .who{font-size:12px;color:var(--muted);display:flex;gap:8px}
+.msg .bub{padding:10px 14px;border-radius:16px;overflow-wrap:anywhere}
+.msg.bot{align-self:flex-start}
+.msg.bot .bub{background:var(--bot-bg);border-top-left-radius:4px}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg.me .bub{background:var(--me-bg);color:var(--me-ink);border-top-right-radius:4px}
+.msg.interim .bub{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.note{align-self:center;font-size:12px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:4px 10px;border-radius:999px;text-align:center}
+.typing .bub{display:flex;gap:4px;padding:14px}
+.typing .bub i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:pulse 1s infinite}
+.typing .bub i:nth-child(2){animation-delay:.15s}.typing .bub i:nth-child(3){animation-delay:.3s}
+.composer{display:flex;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.composer input:disabled{opacity:.5}
+#history h2{margin:0;font:700 18px/1.2 var(--font-display)}
+.hist-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px 6px}
+.hist-list{display:grid;gap:14px;padding:14px 20px 20px}
+.hist-empty{padding:30px 10px;text-align:center;color:var(--muted)}
+.call{border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;background:var(--surface)}
+.call header{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.call h3{margin:0;font:700 16px/1.25 var(--font-display)}
+.meta{color:var(--muted);font-size:13px;margin:2px 0 0}
+.badge{white-space:nowrap;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:700}
+.s-converted{background:var(--s-converted-bg);color:var(--s-converted-fg)}
+.s-interested{background:var(--s-interested-bg);color:var(--s-interested-fg)}
+.s-followup{background:var(--s-followup-bg);color:var(--s-followup-fg)}
+.s-notint{background:var(--s-notint-bg);color:var(--s-notint-fg)}
+.s-demo{background:var(--s-demo-bg);color:var(--s-demo-fg)}
+.s-noresp,.s-pending{background:var(--s-noresp-bg);color:var(--s-noresp-fg)}
+.summary{margin:0}
+.cols{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.cols h4{margin:0 0 4px;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.cols ul{margin:0;padding-left:18px}
+.cols li{margin:0 0 2px}
+.cols p{margin:0;color:var(--muted)}
+audio{width:100%;height:38px}
+.norec{font-size:13px;color:var(--muted);background:var(--surface-2);padding:8px 12px;border-radius:10px}
+details summary{cursor:pointer;font-weight:600;font-size:14px}
+.tr{display:grid;gap:6px;margin-top:10px;max-height:300px;overflow:auto}
+.tr button{all:unset;display:grid;grid-template-columns:46px 1fr;gap:8px;padding:5px 6px;border-radius:8px;cursor:pointer}
+.tr button:hover{background:var(--surface-2)}
+.tr .t{font:500 12px var(--font-mono);color:var(--muted);padding-top:2px}
+.tr .w{font-weight:600;font-size:12px;color:var(--muted);display:block}
+.tr .x{overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.err{color:var(--danger);font-size:13px}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink);padding:0;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:rgba(8,14,11,.55)}
+.dlg{padding:22px;display:grid;gap:14px}
+.dlg h2{margin:0;font:700 20px/1.2 var(--font-display)}
+.dlg p{margin:0;color:var(--muted)}
+.dlg label{display:grid;gap:5px;font-weight:600;font-size:13px}
+.dlg input,.dlg select,.dlg textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 11px;font-weight:400;width:100%}
+.dlg textarea{min-height:84px;resize:vertical}
+.dlg .two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.dlg .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.hint{font-size:12.5px;color:var(--muted);font-weight:400}
+.ok{color:var(--accent);font-size:13px}
+@media (min-width:960px){
+  .grid{grid-template-columns:minmax(0,5fr) minmax(0,6fr);align-items:start}
+  #console{position:sticky;top:16px}
+  .tabs{display:none}
+}
+@media (max-width:959px){
+  body[data-tab="history"] #console{display:none}
+  body[data-tab="call"] #history{display:none}
+  #console{height:calc(100dvh - 190px)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body data-tab="call">
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <div>
+        <h1>Riya Voice Sales Desk</h1>
+        <p id="brandSub">AI voice agent for SaaS sales calls</p>
+      </div>
+    </div>
+    <button class="btn" id="openSettings" type="button">Settings</button>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tabCall" aria-selected="true" type="button">Call</button>
+    <button role="tab" id="tabHist" aria-selected="false" type="button">History <span id="histCount">(0)</span></button>
+  </div>
+
+  <main class="grid">
+    <section class="panel" id="console" aria-label="Call console">
+      <div class="console-head">
+        <div class="row">
+          <span class="pill" id="statusPill" data-s="idle"><span class="dot"></span><span id="statusText">Ready</span></span>
+          <span class="rec" id="recChip" hidden>REC</span>
+          <span class="timer" id="timer" aria-label="Call duration">00:00</span>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="startBtn" type="button">Start Call</button>
+          <button class="btn danger" id="endBtn" type="button" disabled>End Call</button>
+        </div>
+        <div class="context" id="context"></div>
+      </div>
+      <div class="banner" id="banner" hidden></div>
+      <div id="chat" role="log" aria-live="polite">
+        <div class="empty" id="emptyChat"><b>No call in progress</b>Press Start Call. Riya greets you and listens; answer by speaking. If your microphone is noisy you can type a reply below.</div>
+      </div>
+      <form class="composer" id="composer" autocomplete="off">
+        <input id="typed" type="text" placeholder="Type a reply instead of speaking" disabled aria-label="Type a reply">
+        <button class="btn" id="sendBtn" type="submit" disabled>Send</button>
+      </form>
+    </section>
+
+    <section class="panel" id="history" aria-label="Call history">
+      <div class="hist-head">
+        <h2>Call history</h2>
+        <button class="btn small" id="clearAll" type="button" hidden>Clear all</button>
+      </div>
+      <div class="hist-list" id="histList"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="consentDlg">
+  <div class="dlg">
+    <h2>Before we start</h2>
+    <p>Riya is an AI assistant. With your permission, this call is recorded from your microphone and saved in this browser, on this device, so you can play it back under Call History.</p>
+    <p>The text of what you say is sent to the AI provider chosen in Settings to produce the replies and the summary.</p>
+    <div class="btns">
+      <button class="btn" id="consentCancel" type="button">Cancel</button>
+      <button class="btn" id="consentNo" type="button">Start without recording</button>
+      <button class="btn primary" id="consentYes" type="button">I agree, start call</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="settingsDlg">
+  <form class="dlg" id="settingsForm" method="dialog">
+    <h2>Settings</h2>
+    <p class="hint" id="settingsNote">Settings stay in this browser. Use a free key from Google AI Studio (Gemini) or Groq.</p>
+    <div class="two">
+      <label>AI provider
+        <select id="fProvider"><option value="gemini">Google Gemini</option><option value="openai">OpenAI-compatible (Groq, OpenAI)</option></select>
+      </label>
+      <label>Model <input id="fModel" type="text" autocomplete="off"></label>
+    </div>
+    <label>API key <input id="fKey" type="password" autocomplete="off" placeholder="Paste your key"></label>
+    <label id="baseRow">API base URL <input id="fBase" type="text" autocomplete="off"></label>
+    <label id="voiceRow" style="display:flex;gap:10px;align-items:flex-start;font-weight:600">
+      <input id="fGemVoice" type="checkbox" style="width:auto;margin-top:4px">
+      <span>Use Gemini voice <span class="hint" style="display:block">Riya's voice is then included in the recording and works in Hindi and Telugu. If the free quota runs out, the call switches to the browser voice automatically.</span></span>
+    </label>
+    <div class="two">
+      <label>Call language
+        <select id="fLang"><option value="en-IN">English (India)</option><option value="hi-IN">Hindi</option><option value="te-IN">Telugu</option></select>
+      </label>
+      <label>Agent name <input id="fAgent" type="text"></label>
+    </div>
+    <div class="two">
+      <label>Company <input id="fCompany" type="text"></label>
+      <label>Product <input id="fProduct" type="text"></label>
+    </div>
+    <label>What the product does <textarea id="fDesc"></textarea></label>
+    <label>Pricing and offer <textarea id="fOffer"></textarea></label>
+    <div class="btns">
+      <span id="testMsg" class="hint" style="margin-right:auto"></span>
+      <button class="btn" id="testBtn" type="button">Test connection</button>
+      <button class="btn" id="settingsCancel" type="button">Close</button>
+      <button class="btn primary" id="settingsSave" type="submit" value="save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+"use strict";
+/* ---------- Defaults. Set apiKey here only for a private demo; anything in this file is public once hosted. ---------- */
+const DEFAULTS = {
+  v: 2,
+  provider: "gemini",
+  apiKey: "",
+  model: "gemini-3.5-flash-lite",
+  baseUrl: "https://api.groq.com/openai/v1",
+  lang: "en-IN",
+  geminiVoice: true,
+  agent: "Riya",
+  company: "FlowDesk Technologies",
+  product: "FlowDesk",
+  desc: "FlowDesk is cloud helpdesk software for small and mid-size businesses. It puts email, WhatsApp and website chat into one shared inbox, assigns tickets automatically, suggests AI replies to agents, and shows reports on response time and customer satisfaction. Setup takes about one day.",
+  offer: "Starter plan: Rs 799 per agent per month. Growth plan: Rs 1,499 per agent per month. 14-day free trial, no credit card needed. A free 20-minute live demo can be booked any weekday."
+};
+const PROVIDER_DEFAULTS = {
+  gemini: { model: "gemini-3.5-flash-lite" },
+  openai: { model: "llama-3.3-70b-versatile", base: "https://api.groq.com/openai/v1" }
+};
+const LANGS = {
+  "en-IN": { name: "English (India)", llm: "English" },
+  "hi-IN": { name: "Hindi", llm: "Hindi, written in Devanagari script" },
+  "te-IN": { name: "Telugu", llm: "Telugu, written in Telugu script" }
+};
+const STATUSES = ["Converted", "Interested", "Follow-up Required", "Not Interested", "Demo Requested", "No Response"];
+const STATUS_CLASS = { "Converted": "converted", "Interested": "interested", "Follow-up Required": "followup", "Not Interested": "notint", "Demo Requested": "demo", "No Response": "noresp" };
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtDur = (sec) => { sec = Math.max(0, Math.round(sec)); return String(Math.floor(sec / 60)).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0"); };
+const fmtDate = (ts) => new Date(ts).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+
+/* ---------- Settings ---------- */
+let settings = loadSettings();
+function loadSettings() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("riya.settings") || "{}"); } catch (e) {}
+  if ((saved.v || 0) < 2) delete saved.model; /* older saved model names were slow or retired: use the current default */
+  return Object.assign({}, DEFAULTS, saved);
+}
+function saveSettings() { try { localStorage.setItem("riya.settings", JSON.stringify(settings)); } catch (e) {} }
+function langInfo() { return LANGS[settings.lang] || LANGS["en-IN"]; }
+function refreshContext() {
+  $("#context").textContent = "Selling " + settings.product + " in " + langInfo().name + " as " + settings.agent;
+  $("#brandSub").textContent = settings.product + " sales calls, handled by an AI voice agent";
+}
+
+/* ---------- IndexedDB (call history with recordings) ---------- */
+let dbp;
+function getDB() {
+  if (!dbp) dbp = new Promise((res, rej) => {
+    const r = indexedDB.open("riya-calls", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("calls", { keyPath: "id" });
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return dbp;
+}
+function idb(mode, fn) {
+  return getDB().then((db) => new Promise((res, rej) => {
+    const t = db.transaction("calls", mode);
+    const req = fn(t.objectStore("calls"));
+    t.oncomplete = () => res(req && req.result);
+    t.onerror = () => rej(t.error);
+  }));
+}
+const saveCall = (c) => idb("readwrite", (s) => s.put(c));
+const allCalls = () => idb("readonly", (s) => s.getAll());
+const delCall = (id) => idb("readwrite", (s) => s.delete(id));
+const clearCalls = () => idb("readwrite", (s) => s.clear());
+
+/* ---------- LLM ---------- */
+function parseJSON(text) {
+  const t = String(text || "").trim();
+  try { return JSON.parse(t); } catch (e) {}
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) { try { return JSON.parse(fence[1]); } catch (e) {} }
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {} }
+  return null;
+}
+/* Wrapper: never wait more than 45 s for the AI, and stop the request when the call ends. */
+async function llmJSON(system, messages, opts = {}) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), opts.timeoutMs || 45000);
+  const link = () => ctl.abort();
+  if (opts.signal) { if (opts.signal.aborted) ctl.abort(); else opts.signal.addEventListener("abort", link, { once: true }); }
+  try {
+    return await llmJSONRaw(system, messages, Object.assign({}, opts, { signal: ctl.signal }));
+  } catch (e) {
+    if (e.name === "AbortError" && !(opts.signal && opts.signal.aborted)) throw new Error("The AI took too long to answer.");
+    throw e;
+  } finally { clearTimeout(timer); }
+}
+async function llmJSONRaw(system, messages, opts = {}) {
+  const s = settings;
+  if (!s.apiKey) throw new Error("Add an API key in Settings.");
+  const temperature = opts.temperature ?? 0.7;
+  let r;
+  if (s.provider === "gemini") {
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(s.model) + ":generateContent";
+    const gen = { temperature, responseMimeType: "application/json" };
+    /* Voice needs fast answers, so ask the model to think as little as possible. */
+    const fast = /2\.5-flash/.test(s.model) ? { thinkingBudget: 0 } : /gemini-3/.test(s.model) ? { thinkingLevel: "minimal" } : null;
+    const send = (g) => fetch(url, {
+      method: "POST", signal: opts.signal,
+      headers: { "Content-Type": "application/json", "x-goog-api-key": s.apiKey },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
+        generationConfig: g
+      })
+    });
+    r = await send(fast ? Object.assign({}, gen, { thinkingConfig: fast }) : gen);
+    if (r.status === 400 && fast) r = await send(gen); /* this model rejects the thinking setting: retry without it */
+    if (!r.ok) throw new Error("AI error " + r.status + ": " + (await r.text()).slice(0, 200));
+    const d = await r.json();
+    return (d.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+  }
+  const base = (s.baseUrl || "").replace(/\/+$/, "");
+  r = await fetch(base + "/chat/completions", {
+    method: "POST", signal: opts.signal,
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + s.apiKey },
+    body: JSON.stringify({
+      model: s.model, temperature,
+      messages: [{ role: "system", content: system }, ...messages],
+      response_format: { type: "json_object" }
+    })
+  });
+  if (!r.ok) throw new Error("AI error " + r.status + ": " + (await r.text()).slice(0, 200));
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content || "";
+}
+
+function buildSystem(c) {
+  return `You are ${c.agent}, a friendly and professional outbound sales representative at ${c.company}. You are on a live PHONE CALL with a prospective customer and you are selling ${c.productName}.
+
+PRODUCT FACTS (use only these; never invent features, prices, customers or guarantees):
+${c.desc}
+
+OFFER AND PRICING:
+${c.offer}
+
+LANGUAGE: Speak only in ${LANGS[c.lang].llm}. The customer's words arrive as speech-to-text and may contain small mistakes; read them charitably.
+
+STYLE: Your words are spoken aloud. Reply in one or two short sentences, under 40 words. No lists, no markdown, no emojis, no stage directions. Ask at most one question at a time. Sound warm and natural.
+
+GOAL: Learn about the customer's business, team size and current pain points. Explain only the benefits that matter to them. Answer questions honestly. Handle objections (price, timing, an existing tool, needing approval) with empathy and one concrete response. Then move to a clear next step: start the free trial or buy, book a demo (ask for a day and time), or agree a follow-up call. If the customer clearly declines twice, thank them and end politely. Never pressure. If asked something outside the facts, say a specialist will confirm it. If asked whether you are a person, say honestly that you are an AI assistant.
+
+OUTPUT: Reply with JSON only: {"reply":"what you say next","end_call":false}. Set end_call to true only when your reply is a final goodbye and the conversation is finished.`;
+}
+const SUMMARY_SYS = `You are a sales call analyst. You receive a transcript of a sales call between an AI agent (Bot) and a prospective customer (Customer). Reply with JSON only, in English even if the call was in another language:
+{"summary":"2-3 sentence summary of the call","requirements":["what the customer needs or asked for"],"objections":["concerns or objections the customer raised"],"next_steps":["agreed or recommended next actions"],"status":"one of: Converted | Interested | Follow-up Required | Not Interested | Demo Requested | No Response","reason":"one short sentence explaining the status"}
+Status rules: Converted = the customer clearly agreed to buy or sign up. Demo Requested = the customer asked for or agreed to a demo or trial. Interested = positive about the product but made no commitment. Follow-up Required = the customer wants time, a callback, more information, or needs approval. Not Interested = the customer clearly declined. No Response = the customer said nothing meaningful. Use empty arrays when nothing applies.`;
+function normalizeStatus(s) {
+  const k = String(s || "").toLowerCase().replace(/[^a-z]/g, "");
+  return STATUSES.find((x) => x.toLowerCase().replace(/[^a-z]/g, "") === k) || "Follow-up Required";
+}
+
+/* ---------- Speech ---------- */
+let voices = [];
+function loadVoices() { voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
+if (window.speechSynthesis) { loadVoices(); speechSynthesis.addEventListener("voiceschanged", loadVoices); }
+function pickVoice(lang) {
+  const exact = voices.filter((v) => v.lang.replace("_", "-").toLowerCase() === lang.toLowerCase());
+  const loose = voices.filter((v) => v.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
+  const pool = exact.length ? exact : loose;
+  return pool.find((v) => /google|natural|neural/i.test(v.name)) || pool[0] || null;
+}
+const TTS_MODEL = "gemini-3.8-flash-lite-tts";
+const TTS_VOICE = "Kore";
+function stopSpeech(c) {
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (c && c.curSrc) { try { c.curSrc.stop(); } catch (e) {} }
+}
+/* Gemini voice: returns raw audio, so it can be played AND mixed into the recording. */
+async function speakGemini(c, text) {
+  /* Gemini 3.8 TTS is called through the Interactions API and returns a complete WAV file. */
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+    method: "POST", signal: c.abort.signal,
+    headers: { "Content-Type": "application/json", "x-goog-api-key": settings.apiKey },
+    body: JSON.stringify({
+      model: TTS_MODEL,
+      input: [{ type: "user_input", content: [{ type: "text", text }] }],
+      response_format: { type: "audio" },
+      generation_config: { speech_config: [{ voice: TTS_VOICE }] }
+    })
+  });
+  if (!r.ok) { const e = new Error("TTS " + r.status); e.status = r.status; throw e; }
+  const d = await r.json();
+  let b64 = null;
+  for (const step of (d.steps || [])) {
+    if (step.type !== "model_output") continue;
+    for (const part of (step.content || [])) { if (part.type === "audio" && part.data) b64 = part.data; }
+  }
+  if (!b64) throw new Error("TTS returned no audio");
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const buf = await c.ac.decodeAudioData(bytes.buffer);
+  if (!c.active) return;
+  if (c.ac.state === "suspended") await c.ac.resume();
+  await new Promise((resolve) => {
+    const src = c.ac.createBufferSource();
+    src.buffer = buf;
+    src.connect(c.ac.destination);
+    if (c.dest) src.connect(c.dest);
+    c.curSrc = src;
+    src.onended = () => { c.curSrc = null; resolve(); };
+    src.start();
+  });
+}
+async function speak(c, text) {
+  if (c.ac && !c.ttsOff && settings.provider === "gemini" && settings.geminiVoice) {
+    try { await speakGemini(c, text); return; }
+    catch (e) {
+      if (!c.active) return;
+      c.ttsOff = true;
+      addNote(c, "Gemini voice is unavailable (" + String(e.message || e).slice(0, 40) + "). Using the browser voice; Riya's words will not be in the recording.");
+    }
+  }
+  return speakBrowser(text, c.lang);
+}
+function speakBrowser(text, lang) {
+  return new Promise((resolve) => {
+    if (!window.speechSynthesis) { setTimeout(resolve, Math.min(5000, text.length * 55)); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    const v = pickVoice(lang);
+    if (v) u.voice = v;
+    u.rate = 1.02;
+    let done = false;
+    const fin = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
+    const guard = setTimeout(fin, 30000);
+    u.onend = fin; u.onerror = fin;
+    speechSynthesis.speak(u);
+  });
+}
+function listen(c) {
+  const ctl = {};
+  const promise = new Promise((resolve) => {
+    let finalText = "", interim = "", settled = false, rec = null;
+    const finish = (txt) => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      try { rec && rec.abort(); } catch (e) {}
+      clearInterim();
+      resolve(String(txt || "").trim());
+    };
+    ctl.inject = finish;
+    ctl.abort = () => finish("");
+    const timer = setTimeout(() => { if (finalText || interim) { try { rec && rec.stop(); } catch (e) {} } else finish(""); }, c.voice ? 12000 : 30000);
+    if (c.voice) {
+      rec = new SR();
+      rec.lang = c.lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+      rec.onresult = (e) => {
+        interim = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const r = e.results[i];
+          if (r.isFinal) finalText += r[0].transcript + " "; else interim += r[0].transcript;
+        }
+        showInterim((finalText + interim).trim());
+      };
+      rec.onerror = (e) => {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") { c.voice = false; addNote(c, "Speech recognition is blocked. Type your replies instead."); }
+        else if (e.error === "network") { c.voice = false; addNote(c, "Speech recognition could not reach its service. Type your replies instead."); }
+      };
+      rec.onend = () => finish(finalText || interim);
+      try { rec.start(); } catch (e) { c.voice = false; }
+    }
+  });
+  return { promise, ctl };
+}
+
+/* ---------- UI helpers ---------- */
+const STATUS_UI = {
+  idle: "Ready", connecting: "Connecting", speaking: "Riya is speaking", listening: "Listening", thinking: "Thinking", ended: "Call ended"
+};
+function setStatus(key, c) {
+  const pill = $("#statusPill");
+  pill.dataset.s = key;
+  let label = STATUS_UI[key] || key;
+  if (key === "speaking" && c) label = c.agent + " is speaking";
+  $("#statusText").textContent = label;
+}
+function showBanner(msg) { const b = $("#banner"); b.textContent = msg || ""; b.hidden = !msg; }
+function chatEl() { return $("#chat"); }
+function scrollChat() { const el = chatEl(); el.scrollTop = el.scrollHeight; }
+function clearChat() { chatEl().innerHTML = ""; }
+function bubble(role, text, t, who) {
+  const el = document.createElement("div");
+  el.className = "msg " + (role === "bot" ? "bot" : "me");
+  el.innerHTML = '<div class="who"><span>' + esc(who) + "</span><span>" + fmtDur(t) + '</span></div><div class="bub"></div>';
+  el.querySelector(".bub").textContent = text;
+  chatEl().appendChild(el);
+  scrollChat();
+}
+function addNote(c, text) {
+  const el = document.createElement("div");
+  el.className = "note"; el.textContent = text;
+  chatEl().appendChild(el); scrollChat();
+}
+function showInterim(text) {
+  let el = $("#interimMsg");
+  if (!text) { clearInterim(); return; }
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "interimMsg"; el.className = "msg me interim";
+    el.innerHTML = '<div class="who"><span>Customer (hearing you…)</span></div><div class="bub"></div>';
+    chatEl().appendChild(el);
+  }
+  el.querySelector(".bub").textContent = text;
+  scrollChat();
+}
+function clearInterim() { const el = $("#interimMsg"); if (el) el.remove(); }
+function showTyping(on) {
+  let el = $("#typingMsg");
+  if (!on) { if (el) el.remove(); return; }
+  if (el) return;
+  el = document.createElement("div");
+  el.id = "typingMsg"; el.className = "msg bot typing";
+  el.innerHTML = '<div class="bub"><i></i><i></i><i></i></div>';
+  chatEl().appendChild(el); scrollChat();
+}
+function updateButtons() {
+  const live = !!call;
+  $("#startBtn").disabled = live;
+  $("#endBtn").disabled = !live;
+  $("#typed").disabled = !live;
+  $("#sendBtn").disabled = !live;
+  $("#recChip").hidden = !(call && call.recorded);
+}
+let timerId = null;
+function startTimer(c) {
+  stopTimer();
+  $("#timer").textContent = "00:00";
+  timerId = setInterval(() => { $("#timer").textContent = fmtDur((Date.now() - c.startedAt) / 1000); }, 500);
+}
+function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+/* ---------- Call flow ---------- */
+let call = null;
+const PHRASES = {
+  "en-IN": {
+    greet: (c) => `Hello, this is ${c.agent} calling from ${c.company}. This call is recorded for quality and training, and I'm an AI assistant. Do you have a minute to hear how ${c.productName} can help your business?`,
+    nudge: ["Hello, are you still there?"],
+    bye: "It sounds like this is not a good time. I'll try again later. Thank you, goodbye.",
+    fail: "I'm sorry, I'm having a technical problem. We will call you back shortly. Thank you, goodbye."
+  },
+  "hi-IN": {
+    greet: (c) => `नमस्ते, मैं ${c.company} से ${c.agent} बोल रही हूँ। यह कॉल गुणवत्ता और प्रशिक्षण के लिए रिकॉर्ड की जा रही है, और मैं एक एआई असिस्टेंट हूँ। क्या आपके पास एक मिनट है? मैं बताना चाहती हूँ कि ${c.productName} आपके बिज़नेस की कैसे मदद कर सकता है।`,
+    nudge: ["हैलो, क्या आप मुझे सुन पा रहे हैं?"],
+    bye: "लगता है अभी आप व्यस्त हैं। मैं बाद में फिर कॉल करूँगी। धन्यवाद, नमस्ते।",
+    fail: "माफ़ कीजिए, कुछ तकनीकी समस्या आ गई है। हम जल्द ही आपको दोबारा कॉल करेंगे। धन्यवाद, नमस्ते।"
+  },
+  "te-IN": {
+    greet: (c) => `నమస్కారం, నేను ${c.company} నుండి ${c.agent} మాట్లాడుతున్నాను. ఈ కాల్ నాణ్యత మరియు శిక్షణ కోసం రికార్డ్ చేయబడుతోంది, మరియు నేను ఒక ఏఐ అసిస్టెంట్‌ని. ${c.productName} మీ వ్యాపారానికి ఎలా సహాయపడుతుందో చెప్పడానికి మీకు ఒక నిమిషం సమయం ఉందా?`,
+    nudge: ["హలో, మీరు నన్ను వినగలుగుతున్నారా?"],
+    bye: "మీరు బిజీగా ఉన్నట్లున్నారు. నేను మళ్లీ తర్వాత కాల్ చేస్తాను. ధన్యవాదాలు, నమస్కారం.",
+    fail: "క్షమించండి, సాంకేతిక సమస్య వచ్చింది. మేము త్వరలో మళ్లీ కాల్ చేస్తాము. ధన్యవాదాలు, నమస్కారం."
+  }
+};
+
+function openStart() {
+  if (call) return;
+  if (!settings.apiKey) { openSettings("Add an API key to place calls."); return; }
+  const dlg = $("#consentDlg");
+  if (!dlg.open) dlg.showModal();
+}
+
+async function startCall(record) {
+  if (call) return;
+  const c = {
+    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)),
+    lang: settings.lang, agent: settings.agent, company: settings.company, productName: settings.product,
+    desc: settings.desc, offer: settings.offer,
+    messages: [], pending: [], active: true, ending: false, silent: 0, turns: 0,
+    voice: !!SR, recorded: false, wantRecord: record, stream: null, recorder: null, chunks: [],
+    abort: new AbortController(), listenCtl: null, startedAt: Date.now()
+  };
+  call = c;
+  /* Audio mixer, created inside the click so the browser allows playback: mic + Riya's voice go to the recorder. */
+  try {
+    c.ac = new (window.AudioContext || window.webkitAudioContext)();
+    c.dest = c.ac.createMediaStreamDestination();
+    c.ac.resume();
+  } catch (e) { c.ac = null; c.dest = null; }
+  clearChat(); showBanner("");
+  setStatus("connecting", c); updateButtons();
+  $("#timer").textContent = "00:00";
+  const geminiVoiceOn = settings.provider === "gemini" && settings.geminiVoice && c.ac;
+  if (!geminiVoiceOn && (!window.speechSynthesis || !pickVoice(c.lang))) {
+    showBanner("This browser has no " + LANGS[c.lang].name + " voice installed, so Riya's words may not be spoken aloud. They still appear in the chat. Chrome or Edge on desktop or Android works best.");
+  }
+  if (!SR) showBanner("This browser has no speech recognition. Open the page in Chrome or Edge to talk by voice; typing works here.");
+  if (c.voice || record) {
+    try {
+      c.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch (e) {
+      c.stream = null; c.voice = false;
+      addNote(c, "Microphone blocked. You can still type your replies.");
+    }
+  }
+  if (!c.active) { if (c.stream) c.stream.getTracks().forEach((t) => t.stop()); return; }
+  if (c.stream && c.ac && c.dest) {
+    try { c.ac.createMediaStreamSource(c.stream).connect(c.dest); } catch (e) {}
+  }
+  c.startedAt = Date.now();
+  if (c.stream && record) startRecorder(c);
+  updateButtons();
+  startTimer(c);
+  runCall(c);
+}
+
+function startRecorder(c) {
+  try {
+    const types = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"];
+    const mime = types.find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t));
+    const src = c.dest ? c.dest.stream : c.stream;
+    c.recorder = mime ? new MediaRecorder(src, { mimeType: mime }) : new MediaRecorder(src);
+    c.recorder.ondataavailable = (e) => { if (e.data && e.data.size) c.chunks.push(e.data); };
+    c.recorder.start(1000);
+    c.recorded = true;
+  } catch (e) {
+    c.recorder = null; c.recorded = false;
+    addNote(c, "Recording is not supported in this browser.");
+  }
+}
+function stopRecorder(c) {
+  return new Promise((resolve) => {
+    const rec = c.recorder;
+    if (!rec || rec.state === "inactive") { resolve(c.chunks.length ? new Blob(c.chunks, { type: (rec && rec.mimeType) || "audio/webm" }) : null); return; }
+    rec.onstop = () => resolve(c.chunks.length ? new Blob(c.chunks, { type: rec.mimeType || "audio/webm" }) : null);
+    try { rec.stop(); } catch (e) { resolve(null); }
+  });
+}
+
+function addMsg(c, role, text) {
+  const t = (Date.now() - c.startedAt) / 1000;
+  c.messages.push({ role, text, t });
+  clearInterim();
+  bubble(role, text, t, role === "bot" ? c.agent : "Customer");
+}
+async function botSay(c, text) {
+  if (!c.active) return;
+  showTyping(false);
+  addMsg(c, "bot", text);
+  setStatus("speaking", c);
+  await speak(c, text);
+}
+function llmMessages(c) {
+  const m = [{ role: "user", content: "[The call has connected. The customer has just picked up.]" }];
+  for (const x of c.messages) m.push({ role: x.role === "bot" ? "assistant" : "user", content: x.text });
+  return m;
+}
+async function getReply(c) {
+  const out = await llmJSON(buildSystem(c), llmMessages(c), { temperature: 0.7, signal: c.abort.signal });
+  const obj = parseJSON(out);
+  if (obj && typeof obj.reply === "string" && obj.reply.trim()) return { reply: obj.reply.trim(), end: !!obj.end_call };
+  const raw = String(out || "").trim();
+  if (raw && !raw.startsWith("{")) return { reply: raw, end: false };
+  throw new Error("The AI returned an unreadable reply.");
+}
+
+async function runCall(c) {
+  try {
+    await botSay(c, PHRASES[c.lang].greet(c));
+    while (c.active) {
+      let heard = c.pending.shift() || "";
+      if (!heard) {
+        setStatus("listening", c);
+        const { promise, ctl } = listen(c);
+        c.listenCtl = ctl;
+        heard = await promise;
+        c.listenCtl = null;
+        if (!c.active) break;
+      }
+      if (!heard) {
+        c.silent++;
+        if (c.silent >= 3) { await botSay(c, PHRASES[c.lang].bye); break; }
+        await botSay(c, PHRASES[c.lang].nudge[0]);
+        continue;
+      }
+      c.silent = 0;
+      addMsg(c, "user", heard);
+      c.turns++;
+      setStatus("thinking", c); showTyping(true);
+      let res;
+      try { res = await getReply(c); }
+      catch (e) {
+        showTyping(false);
+        if (!c.active) break;
+        addNote(c, String(e.message || e));
+        await botSay(c, PHRASES[c.lang].fail);
+        break;
+      }
+      showTyping(false);
+      if (!c.active) break;
+      await botSay(c, res.reply);
+      if (res.end || c.turns >= 30) break;
+    }
+  } finally {
+    showTyping(false);
+    if (call === c && !c.ending) endCall("bot");
+  }
+}
+
+async function endCall(by) {
+  const c = call;
+  if (!c || c.ending) return;
+  c.ending = true; c.active = false;
+  try { c.abort.abort(); } catch (e) {}
+  stopSpeech(c);
+  if (c.listenCtl) c.listenCtl.abort();
+  showTyping(false); clearInterim();
+  stopTimer();
+  setStatus("ended", c);
+  const duration = Math.round((Date.now() - c.startedAt) / 1000);
+  $("#timer").textContent = fmtDur(duration);
+  const blob = await stopRecorder(c);
+  if (c.stream) c.stream.getTracks().forEach((t) => t.stop());
+  if (c.ac) { try { c.ac.close(); } catch (e) {} }
+  call = null;
+  updateButtons();
+  const rec = {
+    id: c.id, startedAt: c.startedAt, duration, lang: c.lang, product: c.productName, agent: c.agent,
+    messages: c.messages, audio: blob, recorded: !!blob, consented: c.wantRecord,
+    status: null, summary: "", requirements: [], objections: [], next_steps: [], reason: "", state: "pending", error: ""
+  };
+  try { await saveCall(rec); } catch (e) { rec.audio = null; }
+  await refreshHistory();
+  setTab("history");
+  summarize(rec);
+}
+
+function transcriptText(rec) {
+  return rec.messages.map((m) => (m.role === "bot" ? "Bot" : "Customer") + ": " + m.text).join("\n");
+}
+async function summarize(rec) {
+  rec.state = "pending"; rec.error = "";
+  const heard = rec.messages.filter((m) => m.role === "user").length;
+  if (!heard) {
+    Object.assign(rec, { status: "No Response", summary: "The customer did not respond during the call.", requirements: [], objections: [], next_steps: ["Try the call again at a different time."], reason: "No customer speech was captured.", state: "done" });
+  } else {
+    await refreshHistory();
+    try {
+      const out = await llmJSON(SUMMARY_SYS, [{ role: "user", content: "Product: " + rec.product + "\nCall language: " + (LANGS[rec.lang] || LANGS["en-IN"]).name + "\n\nTranscript:\n" + transcriptText(rec) }], { temperature: 0.2, timeoutMs: 90000 });
+      const o = parseJSON(out);
+      if (!o) throw new Error("The summary came back unreadable.");
+      const list = (v) => (Array.isArray(v) ? v.map(String).filter(Boolean) : []);
+      Object.assign(rec, { summary: String(o.summary || ""), requirements: list(o.requirements), objections: list(o.objections), next_steps: list(o.next_steps), reason: String(o.reason || ""), status: normalizeStatus(o.status), state: "done" });
+    } catch (e) {
+      rec.state = "error"; rec.error = String(e.message || e);
+    }
+  }
+  try { await saveCall(rec); } catch (e) {}
+  refreshHistory();
+}
+
+/* ---------- History ---------- */
+let objectUrls = [];
+let callsCache = [];
+async function refreshHistory() {
+  try { callsCache = (await allCalls()).sort((a, b) => b.startedAt - a.startedAt); } catch (e) { callsCache = []; }
+  renderHistory();
+}
+function listHtml(title, items, empty) {
+  return '<div><h4>' + title + "</h4>" + (items && items.length ? "<ul>" + items.map((i) => "<li>" + esc(i) + "</li>").join("") + "</ul>" : "<p>" + empty + "</p>") + "</div>";
+}
+function cardHtml(c) {
+  const st = c.state === "done" ? c.status : null;
+  const badge = st ? '<span class="badge s-' + STATUS_CLASS[st] + '">' + esc(st) + "</span>"
+    : c.state === "error" ? '<span class="badge s-pending">Summary failed</span>' : '<span class="badge s-pending">Summarizing…</span>';
+  let body = "";
+  if (c.state === "done") {
+    body += '<p class="summary">' + esc(c.summary) + "</p>";
+    body += '<div class="cols">' + listHtml("Customer needs", c.requirements, "None mentioned") + listHtml("Objections", c.objections, "None raised") + listHtml("Next steps", c.next_steps, "None") + "</div>";
+    if (c.reason) body += '<p class="meta">Status reason: ' + esc(c.reason) + "</p>";
+  } else if (c.state === "error") {
+    body += '<p class="err">' + esc(c.error || "The summary could not be generated.") + "</p>";
+  } else {
+    body += '<p class="meta">The AI is reading the transcript.</p>';
+  }
+  const audio = c.audio ? '<audio controls preload="metadata" data-audio="' + esc(c.id) + '"></audio>'
+    : '<div class="norec">' + (c.consented ? "No recording was captured for this call." : "Recording was not enabled for this call.") + "</div>";
+  const lines = c.messages.map((m) => '<button type="button" data-act="seek" data-t="' + m.t.toFixed(1) + '"><span class="t">' + fmtDur(m.t) + '</span><span><span class="w">' + (m.role === "bot" ? esc(c.agent) : "Customer") + '</span><span class="x">' + esc(m.text) + "</span></span></button>").join("");
+  return '<article class="call" data-id="' + esc(c.id) + '"><header><div><h3>' + esc(c.product) + " call</h3><p class=\"meta\">" + fmtDate(c.startedAt) + " · " + fmtDur(c.duration) + " · " + esc((LANGS[c.lang] || LANGS["en-IN"]).name) + "</p></div>" + badge + "</header>" +
+    body + audio +
+    '<details><summary>Transcript (' + c.messages.length + ' messages)</summary><div class="tr">' + (lines || '<p class="meta">No messages.</p>') + "</div></details>" +
+    '<div class="actions"><button class="btn small" type="button" data-act="regen"' + (c.messages.length ? "" : " disabled") + ">Regenerate summary</button><button class=\"btn small\" type=\"button\" data-act=\"del\">Delete</button></div></article>";
+}
+function renderHistory() {
+  objectUrls.forEach((u) => URL.revokeObjectURL(u)); objectUrls = [];
+  const list = $("#histList");
+  $("#histCount").textContent = "(" + callsCache.length + ")";
+  $("#clearAll").hidden = !callsCache.length;
+  if (!callsCache.length) { list.innerHTML = '<div class="hist-empty">No calls yet. Finished calls appear here with their recording, summary, transcript and sales status.</div>'; return; }
+  const open = new Set([...list.querySelectorAll("details[open]")].map((d) => d.closest(".call").dataset.id));
+  list.innerHTML = callsCache.map(cardHtml).join("");
+  list.querySelectorAll("audio[data-audio]").forEach((a) => {
+    const c = callsCache.find((x) => x.id === a.dataset.audio);
+    if (c && c.audio) { const u = URL.createObjectURL(c.audio); objectUrls.push(u); a.src = u; }
+  });
+  open.forEach((id) => { const d = list.querySelector('.call[data-id="' + CSS.escape(id) + '"] details'); if (d) d.open = true; });
+}
+$("#histList").addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-act]");
+  if (!btn) return;
+  const card = btn.closest(".call");
+  const rec = callsCache.find((x) => x.id === card.dataset.id);
+  if (!rec) return;
+  const act = btn.dataset.act;
+  if (act === "seek") {
+    const a = card.querySelector("audio");
+    if (a && a.src) { a.currentTime = Number(btn.dataset.t) || 0; a.play().catch(() => {}); }
+  } else if (act === "del") {
+    if (btn.dataset.armed) { await delCall(rec.id); refreshHistory(); }
+    else { btn.dataset.armed = "1"; btn.textContent = "Click again to delete"; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = "Delete"; } }, 3000); }
+  } else if (act === "regen") {
+    rec.state = "pending"; renderHistory(); summarize(rec);
+  }
+});
+$("#clearAll").addEventListener("click", (e) => {
+  const b = e.currentTarget;
+  if (b.dataset.armed) { clearCalls().then(refreshHistory); delete b.dataset.armed; b.textContent = "Clear all"; }
+  else { b.dataset.armed = "1"; b.textContent = "Click again to clear all"; setTimeout(() => { delete b.dataset.armed; b.textContent = "Clear all"; }, 3000); }
+});
+
+/* ---------- Tabs ---------- */
+function setTab(t) {
+  document.body.dataset.tab = t;
+  $("#tabCall").setAttribute("aria-selected", t === "call");
+  $("#tabHist").setAttribute("aria-selected", t === "history");
+}
+$("#tabCall").addEventListener("click", () => setTab("call"));
+$("#tabHist").addEventListener("click", () => setTab("history"));
+
+/* ---------- Controls ---------- */
+$("#startBtn").addEventListener("click", openStart);
+$("#endBtn").addEventListener("click", () => endCall("user"));
+$("#consentYes").addEventListener("click", () => { $("#consentDlg").close(); startCall(true); });
+$("#consentNo").addEventListener("click", () => { $("#consentDlg").close(); startCall(false); });
+$("#consentCancel").addEventListener("click", () => $("#consentDlg").close());
+$("#composer").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = $("#typed");
+  const text = input.value.trim();
+  if (!text || !call || !call.active) return;
+  input.value = "";
+  if (call.listenCtl && call.listenCtl.inject) call.listenCtl.inject(text);
+  else { call.pending.push(text); stopSpeech(call); }
+});
+
+/* ---------- Settings dialog ---------- */
+function fillSettings() {
+  $("#fProvider").value = settings.provider; $("#fModel").value = settings.model; $("#fKey").value = settings.apiKey;
+  $("#fBase").value = settings.baseUrl; $("#fLang").value = settings.lang; $("#fAgent").value = settings.agent;
+  $("#fCompany").value = settings.company; $("#fProduct").value = settings.product; $("#fDesc").value = settings.desc; $("#fOffer").value = settings.offer;
+  $("#fGemVoice").checked = !!settings.geminiVoice;
+  $("#baseRow").hidden = settings.provider !== "openai";
+  $("#voiceRow").hidden = settings.provider !== "gemini";
+  $("#testMsg").textContent = "";
+}
+function readSettingsForm() {
+  return {
+    provider: $("#fProvider").value, model: $("#fModel").value.trim(), apiKey: $("#fKey").value.trim(), baseUrl: $("#fBase").value.trim(),
+    geminiVoice: $("#fGemVoice").checked,
+    lang: $("#fLang").value, agent: $("#fAgent").value.trim() || "Riya", company: $("#fCompany").value.trim() || "our company",
+    product: $("#fProduct").value.trim() || "our product", desc: $("#fDesc").value.trim(), offer: $("#fOffer").value.trim()
+  };
+}
+function openSettings(note) {
+  fillSettings();
+  $("#settingsNote").textContent = note || "Settings stay in this browser. Use a free key from Google AI Studio (Gemini) or Groq.";
+  $("#settingsDlg").showModal();
+}
+$("#openSettings").addEventListener("click", () => openSettings());
+$("#settingsCancel").addEventListener("click", () => $("#settingsDlg").close());
+$("#fProvider").addEventListener("change", () => {
+  const p = $("#fProvider").value;
+  $("#fModel").value = PROVIDER_DEFAULTS[p].model;
+  if (p === "openai") $("#fBase").value = $("#fBase").value || PROVIDER_DEFAULTS.openai.base;
+  $("#baseRow").hidden = p !== "openai";
+  $("#voiceRow").hidden = p !== "gemini";
+});
+$("#settingsForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (call) { $("#testMsg").textContent = "End the current call before changing settings."; return; }
+  settings = Object.assign({}, settings, readSettingsForm());
+  saveSettings(); refreshContext();
+  $("#settingsDlg").close();
+});
+$("#testBtn").addEventListener("click", async () => {
+  const saved = settings;
+  settings = Object.assign({}, settings, readSettingsForm());
+  const msg = $("#testMsg");
+  msg.className = "hint"; msg.textContent = "Testing…";
+  try {
+    const out = await llmJSON('Reply with JSON only: {"ok":true}', [{ role: "user", content: "ping" }], { temperature: 0 });
+    const o = parseJSON(out);
+    msg.className = "ok"; msg.textContent = o ? "Connected." : "Connected, but the reply was unexpected.";
+  } catch (e) { msg.className = "err"; msg.textContent = String(e.message || e).slice(0, 140); }
+  settings = saved;
+});
+
+/* ---------- Boot ---------- */
+refreshContext();
+updateButtons();
+refreshHistory();
+if (!SR) showBanner("Speech recognition works in Chrome and Edge. In this browser you can still type replies.");
+window.addEventListener("beforeunload", () => { if (window.speechSynthesis) speechSynthesis.cancel(); });
+</script>
+</body>
+</html>
