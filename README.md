@@ -22,7 +22,7 @@ Never put an API key inside `index.html` or anywhere in a public repository: any
 ## Host on GitHub Pages
 1. Create a public repository and upload `index.html` (in the root) and this README.
 2. Settings, then Pages: Source "Deploy from a branch", branch `main`, folder `/ (root)`, Save.
-3. After a minute or two the site is at `https://<username>.github.io/<repository>/`.
+3. After a minute or two the site is at `[https://<username>.github.io/<repository>/](https://vanshika-gupta001.github.io/Riya_chatbot/)`.
 
 ## Known limits
 - With a Gemini key and "Use Gemini voice" on (the default), the recording holds both sides: your microphone and Riya's voice are mixed together. This also gives Hindi and Telugu speech without any installed voice. Gemini's free voice quota is small; if it runs out mid-call the app switches to the browser voice, and from then on only the customer's side is recorded (the transcript still has everything).
